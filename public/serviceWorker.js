@@ -48,6 +48,8 @@ const refresh = (response) => {
 };
 
 self.addEventListener("install", (event) => {
+  // Immediately activating service worker on install
+  self.skipWaiting();
   // Perform install steps
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
