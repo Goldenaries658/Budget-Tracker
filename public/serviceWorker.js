@@ -1,5 +1,5 @@
 // Perform install steps
-const CACHE_NAME = "budget-app-cache-v2";
+const CACHE_NAME = "budget-app-cache-v3";
 const urlsToCache = [
   "/",
   "/styles/main.css",
@@ -16,6 +16,35 @@ const cache = (request, response) => {
   return caches
     .open(CACHE_NAME)
     .then((cache) => cache.put(request, response.clone()));
+};
+
+// caching api responses
+const update = (request) => {
+  return fetch(request.url).then(
+    (response) =>
+      cache(request, response) // we can put response in cache
+        .then(() => response) // resolve promise with the Response object
+  );
+};
+
+// Refreshing the page with server response
+const refresh = (response) => {
+  return response
+    .json() // read and parse JSON response
+    .then((jsonResponse) => {
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          // report and send new data to client
+          client.postMessage(
+            JSON.stringify({
+              type: response.url,
+              data: jsonResponse.data,
+            })
+          );
+        });
+      });
+      return jsonResponse.data; // resolve promise with new data
+    });
 };
 
 self.addEventListener("install", (event) => {
@@ -48,23 +77,27 @@ self.addEventListener("activate", (event) => {
 // Returning cached requests
 self.addEventListener("fetch", (event) => {
   // Checking if calling api
-  // if (event.request.url.includes("/api/")) {
-  //   // Cache Update Refresh Strategy for api calls
-  // } else {
-  // Cache First Strategy
-  console.log(event.request.url);
-  event.respondWith(
-    caches
-      .match(event.request) // Checking for cached response
-      .then((cachedFile) => cachedFile || fetch(event.request)) // if cachedFile unavailable then req network
-      .then((response) => {
-        if (event.request.url.indexOf("http") === 0) {
-          // Checking if request is http (not browser extension)
-          return cache(event.request, response) // adds response to cache
-            .then(() => response); // Return network response
-        }
-        return response;
-      })
-  );
-  // }
+  if (event.request.url.includes("/api/")) {
+    // Cache Update Refresh Strategy for api calls
+    event.respondWith(caches.match(event.request)); // Respond instantly from cache if available
+    event.waitUntil(
+      update(event.request) // Save network response to cache
+        .then(refresh)
+    ); // Sending new data to client
+  } else {
+    // Cache First Strategy
+    event.respondWith(
+      caches
+        .match(event.request) // Checking for cached response
+        .then((cachedFile) => cachedFile || fetch(event.request)) // if cachedFile unavailable then req network
+        .then((response) => {
+          if (event.request.url.indexOf("http") === 0) {
+            // Checking if request is http (not browser extension)
+            return cache(event.request, response) // adds response to cache
+              .then(() => response); // Return network response
+          }
+          return response;
+        })
+    );
+  }
 });

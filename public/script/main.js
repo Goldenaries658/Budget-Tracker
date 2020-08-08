@@ -151,3 +151,10 @@ document.querySelector("#add-btn").onclick = function() {
 document.querySelector("#sub-btn").onclick = function() {
   sendTransaction(false);
 };
+
+// Updating the view on message from service worker
+navigator.serviceWorker.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  //TODO: detect the type of message and refresh the view
+  console.log(message)
+};
