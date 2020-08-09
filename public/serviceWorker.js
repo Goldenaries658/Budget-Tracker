@@ -1,5 +1,5 @@
 // Perform install steps
-const CACHE_NAME = "budget-app-cache-v3";
+const CACHE_NAME = "budget-app-cache-v7";
 const urlsToCache = [
   "/",
   "/styles/main.css",
@@ -38,7 +38,7 @@ const refresh = (response) => {
           client.postMessage(
             JSON.stringify({
               type: response.url,
-              data: jsonResponse.data,
+              data: jsonResponse,
             })
           );
         });
@@ -78,6 +78,10 @@ self.addEventListener("activate", (event) => {
 
 // Returning cached requests
 self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") {
+    event.respondWith(fetch(event.request));
+    return;
+  }
   // Checking if calling api
   if (event.request.url.includes("/api/")) {
     // Cache Update Refresh Strategy for api calls
@@ -93,8 +97,9 @@ self.addEventListener("fetch", (event) => {
         .match(event.request) // Checking for cached response
         .then((cachedFile) => cachedFile || fetch(event.request)) // if cachedFile unavailable then req network
         .then((response) => {
-          if (event.request.url.indexOf("http") === 0) {
-            // Checking if request is http (not browser extension)
+          if (
+            event.request.url.indexOf("http") === 0 // Checking if request is http (not browser extension)
+          ) {
             return cache(event.request, response) // adds response to cache
               .then(() => response); // Return network response
           }
