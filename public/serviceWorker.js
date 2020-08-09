@@ -1,5 +1,5 @@
 // Perform install steps
-const CACHE_NAME = "budget-app-cache-v7";
+const CACHE_NAME = "budget-app-cache-v10";
 const urlsToCache = [
   "/",
   "/styles/main.css",
