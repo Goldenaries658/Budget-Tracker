@@ -1,5 +1,5 @@
 // Perform install steps
-const CACHE_NAME = "budget-app-cache-v10";
+const CACHE_NAME = "budget-app-cache-v15";
 const urlsToCache = [
   "/",
   "/styles/main.css",
@@ -88,8 +88,8 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(caches.match(event.request)); // Respond instantly from cache if available
     event.waitUntil(
       update(event.request) // Save network response to cache
-        .then(refresh)
-    ); // Sending new data to client
+        .then(refresh) // Sending new data to client
+    );
   } else {
     // Cache First Strategy
     event.respondWith(
