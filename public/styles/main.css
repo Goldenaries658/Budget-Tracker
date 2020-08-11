@@ -3,7 +3,8 @@ body {
   font-family: Arial;
 }
 
-button, input {
+button,
+input {
   font-size: 100%;
   font-family: Arial;
 }
@@ -12,7 +13,8 @@ table {
   width: 100%;
 }
 
-td, th {
+td,
+th {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
@@ -32,14 +34,10 @@ tr:nth-child(even) {
   text-align: center;
 }
 
-.total {
-  font-size: 150%;
-  text-decoration: underline;
-}
-
 .form {
   margin-top: 25px;
   width: 100%;
+  text-align: -webkit-center;
 }
 
 .transactions {
@@ -48,4 +46,8 @@ tr:nth-child(even) {
   overflow: auto;
   width: 90%;
   margin: 0 auto;
+}
+
+#myChart {
+  background: #eeeeee;
 }
